@@ -1,1 +1,6 @@
 I. Introduction
+CPU scheduling is an important concept in operating systems. When multiple processes request the CPU, the system needs a scheduling algorithm to decide which process should run first.
+
+In this project, our group implements two non-preemptive CPU scheduling algorithms: Shortest Job First (SJF) and Priority Scheduling. We develop a simple GUI application on Windows to demonstrate how these algorithms work.
+
+The application reads process data from a CSV file, calculates the scheduling results, and displays them on the screen along with a Gantt chart.
