@@ -18,3 +18,15 @@ def priority_non_preemptive(processes):
         if idx == -1:
             current_time += 1
             continue
+
+        p = processes[idx]
+
+        # tính toán
+        p['waiting'] = current_time - p['arrival']
+        current_time += p['burst']
+        p['turnaround'] = p['waiting'] + p['burst']
+
+        done[idx] = True
+        result_order.append(p['id'])
+
+    return result_order, processes
