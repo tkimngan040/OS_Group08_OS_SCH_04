@@ -1,5 +1,5 @@
 import csv
-from process import Process
+from models.process import Process
 
 def read_csv(file_name):
     processes = []

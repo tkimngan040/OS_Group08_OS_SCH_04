@@ -1,3 +1,6 @@
+import sys
+import os
+sys.path.append(os.path.abspath("Code"))
 from utils.csv_reader import read_csv
 
 def main():
