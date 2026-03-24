@@ -2,26 +2,26 @@ from process import Process
 
 
 def run_program():
-    print("=== CHƯƠNG TRÌNH CÓ TÊN ĐỂ Vô SAU ===")
+    print("=== HỆ THỐNG ĐATJ TÊN LẠI SAU ===")
+
+    # Danh sách các file cần xử lý
+    files = ["data1.csv", "data.csv", "data3.csv"]
+
+    
+
+    # Tạo các đối tượng Process khác nhau
+    for i, file_name in enumerate(files, 1):
+        print(f"\n--- Bắt đầu đọc dữ liệu {i} ---")
 
 
-    print("\n--- data1.csv ---")
-    p1 = Process("data1.csv")
-    p1.load_data()
-    p1.display_data()  #  in dữ liệu ra xem
+        p = Process(f"Đọc data_{i}")
 
 
-    print("\n--- data2.csv ---")
-    p2 = Process("data.csv")
-    p2.load_data()
-    p2.display_data()
+        p.load_data(file_name)  # ĐỌC (data1.csv) ỞE DÂY
+        p.execute_task()
+        p.display_data()
 
-
-    print("\n--- data3.csv ---")
-    p3 = Process("data3.csv")
-    p3.load_data()
-    p3.display_data()
-    print("\n=== Hoàn thành nhiệm vụ! ===")
+    print("\n hoàn thành")
 
 
 if __name__ == "__main__":
