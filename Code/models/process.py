@@ -21,29 +21,23 @@ class Process:
 
 
 def calculate_times(processes):
-    # Sắp xếp theo arrival time (FCFS)
-    processes.sort(key=lambda x: x.arrival_time)
+
+    processes.sort(key=lambda x: (x.arrival_time, int(x.pid[1:])))
 
     current_time = 0
 
     for p in processes:
-        
+        if p.burst_time <= 0:
+            raise ValueError(f"Burst time không hợp lệ: {p.pid}")
+
         if current_time < p.arrival_time:
             current_time = p.arrival_time
 
-        # Thời điểm bắt đầu
         p.start_time = current_time
-
-        # Thời điểm hoàn thành
-        p.completion_time = p.start_time + p.burst_time
-
-        # Turnaround time = CT - AT
+        p.completion_time = current_time + p.burst_time
         p.turnaround_time = p.completion_time - p.arrival_time
-
-        # Waiting time = TAT - BT
         p.waiting_time = p.turnaround_time - p.burst_time
 
-        # Cập nhật thời gian hiện tại
         current_time = p.completion_time
 
     return processes
