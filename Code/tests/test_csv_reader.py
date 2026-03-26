@@ -6,14 +6,12 @@ def main():
     for file in files:
         print(f"\n=== Đang đọc {file} ===")
 
-        processes = read_csv(file)
+        try:
+            processes = read_csv(file)
+        except Exception as e:
+            print(f"Lỗi: {e}")
+            continue
 
         if not processes:
             print("Không có dữ liệu")
             continue
-
-        for p in processes:
-            print(p.pid, p.arrival_time, p.burst_time, p.priority)
-
-if __name__ == "__main__":
-    main()
