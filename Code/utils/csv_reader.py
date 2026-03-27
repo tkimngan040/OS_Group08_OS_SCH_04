@@ -1,6 +1,6 @@
 import pandas as pd
 import os
-from utils.process import Process
+from models.process import Process
 
 def read_csv(file_path):
     if not os.path.exists(file_path):
@@ -18,7 +18,10 @@ def read_csv(file_path):
         if pd.isna(row['arrival_time']) or pd.isna(row['burst_time']):
             raise ValueError("Dữ liệu bị thiếu trong file CSV")
 
-        priority = int(row['priority']) if 'priority' in df.columns else 0
+        if 'priority' in df.columns and not pd.isna(row['priority']):
+            priority = int(row['priority'])
+        else:
+            priority = 0
 
         p = Process(
             str(row['pid']),
