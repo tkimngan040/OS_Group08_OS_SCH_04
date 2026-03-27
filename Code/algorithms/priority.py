@@ -4,10 +4,6 @@ def priority_non_preemptive(processes):
     """
 
     n = len(processes)
-
-    # Sắp xếp ban đầu theo arrival
-    processes.sort(key=lambda x: x.arrival_time)
-
     current_time = 0
     done = [False] * n
     completed = 0
@@ -16,18 +12,33 @@ def priority_non_preemptive(processes):
 
     while completed < n:
         idx = -1
-        best_priority = float('inf')
 
-        # tìm process phù hợp
         for i in range(n):
             p = processes[i]
 
-            if (not done[i] and 
-                p.arrival_time <= current_time and 
-                p.priority < best_priority):
+            # validate burst_time
+            if p.burst_time <= 0:
+                raise ValueError(f"Burst time không hợp lệ: {p.pid}")
 
-                best_priority = p.priority
-                idx = i
+            if not done[i] and p.arrival_time <= current_time:
+                if idx == -1:
+                    idx = i
+                else:
+                    current = processes[idx]
+
+                    # so sánh priority
+                    if p.priority < current.priority:
+                        idx = i
+
+                    # tie-break khi cùng priority
+                    elif p.priority == current.priority:
+                        # ưu tiên arrival_time nhỏ hơn
+                        if p.arrival_time < current.arrival_time:
+                            idx = i
+                        # nếu arrival bằng → so pid (P1 < P2)
+                        elif p.arrival_time == current.arrival_time:
+                            if int(p.pid[1:]) < int(current.pid[1:]):
+                                idx = i
 
         # chưa có tiến trình nào tới
         if idx == -1:
@@ -36,11 +47,7 @@ def priority_non_preemptive(processes):
 
         p = processes[idx]
 
-        # nếu CPU rảnh trước khi process tới
-        if current_time < p.arrival_time:
-            current_time = p.arrival_time
-
-        # tính toán theo đúng class Process
+        # tính toán
         p.start_time = current_time
         p.completion_time = current_time + p.burst_time
         p.turnaround_time = p.completion_time - p.arrival_time
