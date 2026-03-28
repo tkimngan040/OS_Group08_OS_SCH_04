@@ -7,7 +7,7 @@ def sjf_non_preemptive(processes):
     order = []
 
     # (optional) sort theo arrival trước
-    processes.sort(key=lambda p: p.arrival_time)
+    processes = sorted(processes, key=lambda p: p.arrival_time)
 
     while completed < n:
         idx = -1
