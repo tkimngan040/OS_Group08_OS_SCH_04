@@ -41,7 +41,7 @@ def print_table(processes):
 
     print(f"{'PID':<5}{'AT':<5}{'BT':<5}{'PR':<5}{'ST':<5}{'CT':<5}{'WT':<5}{'TAT':<5}")
 
-    # giống GUI → sort theo start_time
+    
     processes = sorted(processes, key=lambda p: p.start_time)
 
     for p in processes:
@@ -62,7 +62,7 @@ def show_average(processes):
 def main():
     processes = create_test_data()
 
-    # giống GUI → tránh bug
+
     processes_copy = copy.deepcopy(processes)
 
     order, result = priority_non_preemptive(processes_copy)
@@ -76,3 +76,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
