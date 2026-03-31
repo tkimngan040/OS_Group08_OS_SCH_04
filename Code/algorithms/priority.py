@@ -42,7 +42,9 @@ def priority_non_preemptive(processes):
 
         # chưa có tiến trình nào tới
         if idx == -1:
-            current_time += 1
+            current_time = min(
+                p.arrival_time for i, p in enumerate(processes) if not done[i]
+            )
             continue
 
         p = processes[idx]
