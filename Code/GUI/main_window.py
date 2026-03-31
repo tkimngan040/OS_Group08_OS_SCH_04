@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import os
 import copy
-import time
+from datetime import datetime
 
 from utils.csv_reader import read_csv
 from utils.csv_writer import write_csv
@@ -224,7 +224,7 @@ class App:
 
         os.makedirs(self.output_folder, exist_ok=True)
 
-        filename = f"result_{self.algo_var.get()}_{int(time.time())}.csv"
+        filename = f"result_{self.algo_var.get()}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
         file_path = os.path.join(self.output_folder, filename)
 
         try:
