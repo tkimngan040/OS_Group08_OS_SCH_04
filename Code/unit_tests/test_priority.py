@@ -1,7 +1,7 @@
 import copy
 
-from process import Process
-from priority import priority_non_preemptive
+from models.process import Process
+from algorithms.priority import priority_non_preemptive
 
 
 # ================= DATA TEST =================
@@ -76,4 +76,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
