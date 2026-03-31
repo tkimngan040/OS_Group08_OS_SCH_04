@@ -15,3 +15,9 @@ def main():
         if not processes:
             print("Không có dữ liệu")
             continue
+
+        for p in processes:
+            print(p.pid, p.arrival_time, p.burst_time, p.priority)
+
+if __name__ == "__main__":
+    main()
