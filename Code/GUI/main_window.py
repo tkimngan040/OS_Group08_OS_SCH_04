@@ -75,31 +75,6 @@ class App:
 
         self.tree.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-        # ===== AVERAGE =====
-        self.avg_label = tk.Label(
-            self.root,
-            text="Average Waiting Time: 0 | Average Turnaround Time:: 0",
-            font=("Arial", 11)
-        )
-        self.avg_label.pack(pady=5)
-
-        # ===== ORDER =====
-        self.order_label = tk.Label(
-            self.root,
-            text="Execution Order: ",
-            font=("Arial", 11)
-        )
-        self.order_label.pack(pady=5)
-
-        # ===== GANTT =====
-        self.gantt_label = tk.Label(
-            self.root,
-            text="Gantt Chart (CPU Scheduling Timeline)",
-            bg="white",
-            font=("Courier", 12),
-            justify="left"
-        )
-        self.gantt_label.pack(fill=tk.X, padx=10, pady=10)
 
     # ================= LOAD FILE LIST =================
     def load_file_list(self):
@@ -127,9 +102,6 @@ class App:
 
             # reset UI
             self.current_result = []
-            self.gantt_label.config(text="Gantt Chart (CPU Scheduling Timeline)")
-            self.avg_label.config(text="Average Waiting Time: 0 | Average Turnaround Time: 0")
-            self.order_label.config(text="Execution Order: ")
 
             self.display_processes(self.processes)
 
@@ -175,46 +147,11 @@ class App:
 
             self.current_result = result
 
+            self.open_result_window(result, order)
             self.display_processes(result)
-            self.show_gantt(result, order)
-            self.show_average(result)
-            self.show_order(order)
-
-            messagebox.showinfo("Done", "Chạy xong!")
 
         except Exception as e:
             messagebox.showerror("Error", str(e))
-
-    # ================= GANTT =================
-    def show_gantt(self, processes, order):
-        chart = ""
-        timeline = ""
-
-        process_map = {p.pid: p for p in processes}
-
-        for pid in order:
-            p = process_map[pid]
-            chart += f"| {p.pid} "
-            timeline += f"{p.start_time}    "
-
-        chart += "|"
-        last = process_map[order[-1]]
-        timeline += str(last.completion_time)
-
-        self.gantt_label.config(text=chart + "\n" + timeline)
-
-    # ================= AVERAGE =================
-    def show_average(self, processes):
-        avg_wt = sum(p.waiting_time for p in processes) / len(processes)
-        avg_tat = sum(p.turnaround_time for p in processes) / len(processes)
-
-        self.avg_label.config(
-            text=f"Average Waiting Time: {avg_wt:.2f} | Average Turnaround Time: {avg_tat:.2f}"
-        )
-
-    # ================= ORDER =================
-    def show_order(self, order):
-        self.order_label.config(text="Execution Order: " + " → ".join(order))
 
     # ================= EXPORT =================
     def export_csv(self):
@@ -232,3 +169,133 @@ class App:
             messagebox.showinfo("Success", f"Đã lưu vào {filename}")
         except Exception as e:
             messagebox.showerror("Error", str(e))
+
+    # ================= RESULT WINDOW =================
+    def open_result_window(self, processes, order):
+        win = tk.Toplevel(self.root)
+        win.title("Scheduling Result")
+        win.geometry("1000x600")
+
+        # ===== HEADER =====
+        header_text = (
+            f"File: {self.file_var.get()} | "
+            f"Algorithm: {self.algo_var.get()} | "
+            f"Generated at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+        )
+
+        tk.Label(
+            win,
+            text=header_text,
+            font=("Arial", 11, "bold"),
+            fg="black"
+        ).pack(pady=5)
+
+        # ===== AVERAGE =====
+        avg_wt = sum(p.waiting_time for p in processes) / len(processes)
+        avg_tat = sum(p.turnaround_time for p in processes) / len(processes)
+
+        avg_text = f"Average Waiting Time: {avg_wt:.2f} | Average Turnaround Time: {avg_tat:.2f}"
+
+        tk.Label(
+            win,
+            text=avg_text,
+            font=("Arial", 11)
+        ).pack(pady=5)
+
+        # ================= ORDER =================
+        order_frame = tk.Frame(win)
+        order_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+
+        tk.Label(order_frame, text="Execution Order:", font=("Arial", 11, "bold")).pack(anchor="w")
+
+        text_frame = tk.Frame(order_frame)
+        text_frame.pack(fill=tk.BOTH, expand=True)
+
+        order_text = tk.Text(text_frame, height=10, wrap="word")
+        scroll_y = tk.Scrollbar(text_frame, command=order_text.yview)
+
+        order_text.configure(yscrollcommand=scroll_y.set)
+
+        order_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scroll_y.pack(side=tk.RIGHT, fill=tk.Y)
+
+        # mỗi 10 process xuống dòng
+        lines = []
+        for i in range(0, len(order), 10):
+            lines.append(" → ".join(order[i:i+10]))
+
+        order_text.insert(tk.END, "\n".join(lines))
+        order_text.config(state="disabled")
+
+        # ================= GANTT =================
+        gantt_frame = tk.Frame(win)
+        gantt_frame.pack(fill=tk.X, expand=False, padx=10, pady=5)
+
+        tk.Label(gantt_frame, text="Gantt Chart:", font=("Arial", 11, "bold")).pack(anchor="w")
+
+        canvas_frame = tk.Frame(gantt_frame)
+        canvas_frame.pack(fill=tk.BOTH, expand=True)
+
+        canvas = tk.Canvas(canvas_frame, bg="white", height=220)
+
+        scroll_x = tk.Scrollbar(canvas_frame, orient=tk.HORIZONTAL, command=canvas.xview)
+        canvas.configure(xscrollcommand=scroll_x.set)
+
+        canvas.pack(fill=tk.BOTH, expand=True)
+        scroll_x.pack(fill=tk.X)
+
+        # ===== DRAG =====
+        canvas.bind("<Button-1>", lambda e: canvas.scan_mark(e.x, e.y))
+        canvas.bind("<B1-Motion>", lambda e: canvas.scan_dragto(e.x, e.y, gain=1))
+
+        # ===== SCROLL NGANG BẰNG WHEEL =====
+        def on_mousewheel(event):
+            canvas.xview_scroll(int(-1 * (event.delta / 120)), "units")
+
+        canvas.bind("<Enter>", lambda e: canvas.bind_all("<MouseWheel>", on_mousewheel))
+        canvas.bind("<Leave>", lambda e: canvas.unbind_all("<MouseWheel>"))
+
+        # ===== VẼ GANTT =====
+        process_map = {p.pid: p for p in processes}
+
+        scale = 20
+        x = 10
+        y_top = 60
+        y_bottom = 120
+
+        for pid in order:
+            p = process_map[pid]
+            duration = p.completion_time - p.start_time
+            width = max(duration * scale, 20)
+
+            canvas.create_rectangle(
+                x, y_top, x + width, y_bottom,
+                fill="#90CAF9",
+                outline="black"
+            )
+
+            if width > 30:
+                canvas.create_text(
+                    x + width / 2,
+                    (y_top + y_bottom) / 2,
+                    text=pid
+                )
+
+            canvas.create_text(
+                x,
+                y_bottom + 15,
+                text=str(p.start_time),
+                anchor="n"
+            )
+
+            x += width
+
+        last = process_map[order[-1]]
+        canvas.create_text(
+            x,
+            y_bottom + 15,
+            text=str(last.completion_time),
+            anchor="n"
+        )
+
+        canvas.configure(scrollregion=(0, 0, x + 50, 220))
