@@ -38,7 +38,6 @@ class App:
             state="readonly", width=25
         )
         self.file_combo.grid(row=0, column=0, padx=5)
-
         tk.Button(top_frame, text="Load", command=self.load_file).grid(row=0, column=1, padx=5)
 
         # ===== ALGORITHM =====
@@ -52,7 +51,6 @@ class App:
         )
         self.algo_combo.grid(row=0, column=2, padx=5)
         self.algo_combo.current(0)
-
         tk.Button(top_frame, text="Run", command=self.run_algorithm).grid(row=0, column=3, padx=5)
         tk.Button(top_frame, text="Export", command=self.export_csv).grid(row=0, column=4, padx=5)
 
@@ -99,12 +97,9 @@ class App:
 
         try:
             self.processes = read_csv(file_path)
-
             # reset UI
             self.current_result = []
-
             self.display_processes(self.processes)
-
             messagebox.showinfo("Success", f"Đã load {self.file_var.get()}")
 
         except Exception as e:
@@ -137,16 +132,13 @@ class App:
             return
 
         try:
-            # deepcopy tránh bug
             processes_copy = copy.deepcopy(self.processes)
-
             if self.algo_var.get() == "SJF":
                 order, result = sjf_non_preemptive(processes_copy)
             else:
                 order, result = priority_non_preemptive(processes_copy)
 
             self.current_result = result
-
             self.open_result_window(result, order)
             self.display_processes(result)
 
@@ -160,7 +152,6 @@ class App:
             return
 
         os.makedirs(self.output_folder, exist_ok=True)
-
         filename = f"result_{self.algo_var.get()}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
         file_path = os.path.join(self.output_folder, filename)
 
@@ -193,7 +184,6 @@ class App:
         # ===== AVERAGE =====
         avg_wt = sum(p.waiting_time for p in processes) / len(processes)
         avg_tat = sum(p.turnaround_time for p in processes) / len(processes)
-
         avg_text = f"Average Waiting Time: {avg_wt:.2f} | Average Turnaround Time: {avg_tat:.2f}"
 
         tk.Label(
@@ -205,24 +195,22 @@ class App:
         # ================= ORDER =================
         order_frame = tk.Frame(win)
         order_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-
         tk.Label(order_frame, text="Execution Order:", font=("Arial", 11, "bold")).pack(anchor="w")
-
         text_frame = tk.Frame(order_frame)
         text_frame.pack(fill=tk.BOTH, expand=True)
-
         order_text = tk.Text(text_frame, height=10, wrap="word")
         scroll_y = tk.Scrollbar(text_frame, command=order_text.yview)
-
         order_text.configure(yscrollcommand=scroll_y.set)
-
         order_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scroll_y.pack(side=tk.RIGHT, fill=tk.Y)
 
-        # mỗi 10 process xuống dòng
         lines = []
         for i in range(0, len(order), 10):
-            lines.append(" → ".join(order[i:i+10]))
+            chunk = order[i:i+10]
+            line = " → ".join(chunk)
+            if i != 0:
+                line = "→ " + line
+            lines.append(line)
 
         order_text.insert(tk.END, "\n".join(lines))
         order_text.config(state="disabled")
@@ -230,17 +218,12 @@ class App:
         # ================= GANTT =================
         gantt_frame = tk.Frame(win)
         gantt_frame.pack(fill=tk.X, expand=False, padx=10, pady=5)
-
         tk.Label(gantt_frame, text="Gantt Chart:", font=("Arial", 11, "bold")).pack(anchor="w")
-
         canvas_frame = tk.Frame(gantt_frame)
         canvas_frame.pack(fill=tk.BOTH, expand=True)
-
         canvas = tk.Canvas(canvas_frame, bg="white", height=220)
-
         scroll_x = tk.Scrollbar(canvas_frame, orient=tk.HORIZONTAL, command=canvas.xview)
         canvas.configure(xscrollcommand=scroll_x.set)
-
         canvas.pack(fill=tk.BOTH, expand=True)
         scroll_x.pack(fill=tk.X)
 
@@ -271,7 +254,6 @@ class App:
             if p.start_time > current_time:
                 idle_duration = p.start_time - current_time
                 idle_width = idle_duration * scale
-
                 canvas.create_rectangle(
                     x, y_top, x + idle_width, y_bottom,
                     fill="#E0E0E0",
@@ -297,7 +279,6 @@ class App:
 
             duration = p.completion_time - p.start_time
             width = max(duration * scale, 20)
-
             canvas.create_rectangle(
                 x, y_top, x + width, y_bottom,
                 fill="#90CAF9",
