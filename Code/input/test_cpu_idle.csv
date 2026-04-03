@@ -1,4 +1,0 @@
-pid,arrival_time,burst_time,priority
-P1,0,5,1
-P2,10,4,2
-P3,12,2,3
