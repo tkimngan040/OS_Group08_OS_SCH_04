@@ -263,8 +263,38 @@ class App:
         y_top = 60
         y_bottom = 120
 
+        current_time = 0
+
         for pid in order:
             p = process_map[pid]
+
+            if p.start_time > current_time:
+                idle_duration = p.start_time - current_time
+                idle_width = idle_duration * scale
+
+                canvas.create_rectangle(
+                    x, y_top, x + idle_width, y_bottom,
+                    fill="#E0E0E0",
+                    outline="black"
+                )
+
+                canvas.create_text(
+                    x + idle_width / 2,
+                    (y_top + y_bottom) / 2,
+                    text="IDLE",
+                    font=("Arial", 8)
+                )
+
+                canvas.create_text(
+                    x,
+                    y_bottom + 15,
+                    text=str(current_time),
+                    anchor="n"
+                )
+
+                x += idle_width
+                current_time = p.start_time
+
             duration = p.completion_time - p.start_time
             width = max(duration * scale, 20)
 
@@ -274,21 +304,29 @@ class App:
                 outline="black"
             )
 
-            if width > 30:
+            if width < 30:
+                canvas.create_text(
+                    x + width / 2,
+                    (y_top + y_bottom) / 2,
+                    text=pid,
+                    angle=90,
+                    font=("Arial", 7)
+                )
+            else:
                 canvas.create_text(
                     x + width / 2,
                     (y_top + y_bottom) / 2,
                     text=pid
                 )
-
-            canvas.create_text(
-                x,
-                y_bottom + 15,
-                text=str(p.start_time),
-                anchor="n"
-            )
+                canvas.create_text(
+                    x,
+                    y_bottom + 15,
+                    text=str(p.start_time),
+                    anchor="n"
+                )
 
             x += width
+            current_time = p.completion_time
 
         last = process_map[order[-1]]
         canvas.create_text(
