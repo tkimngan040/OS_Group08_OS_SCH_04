@@ -26,12 +26,17 @@ def sjf_non_preemptive(processes):
 
                 # tie-break (fix lỗi idx = -1)
                 elif p.burst_time == min_bt:
-                    if idx == -1 or p.arrival_time < processes[idx].arrival_time:
+                    if p.arrival_time < processes[idx].arrival_time:
                         idx = i
+                    elif p.arrival_time == processes[idx].arrival_time:
+                        if int(p.pid[1:]) < int(processes[idx].pid[1:]):
+                            idx = i
 
-        # nếu chưa có process nào đến
+        # nếu chưa có process nào đến 
         if idx == -1:
-            current_time += 1
+            current_time = min(
+                p.arrival_time for i, p in enumerate(processes) if not visited[i]
+            )
             continue
 
         p = processes[idx]
