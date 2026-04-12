@@ -9,7 +9,6 @@ class Process:
         self.burst_time = burst_time
         self.priority = priority
 
-        # các giá trị sẽ được tính
         self.start_time = 0
         self.completion_time = 0
         self.turnaround_time = 0
@@ -30,10 +29,12 @@ def load_test_data():
     ]
 
 
-def test_tie_break_priority():
+# =========================
+# ✅ TEST 1: Thứ tự execution (QUAN TRỌNG NHẤT)
+# =========================
+def test_execution_order():
     processes = load_test_data()
-
-    result_order, result_processes = priority_non_preemptive(processes)
+    result_order, _ = priority_non_preemptive(processes)
 
     expected_order = [
         "P1","P2",
@@ -47,37 +48,51 @@ def test_tie_break_priority():
         "P17"
     ]
 
-    #TEST 1: đúng thứ tự execution
     assert result_order == expected_order, \
-        f"Sai thứ tự! Expected {expected_order} nhưng ra {result_order}"
+        f"Sai thứ tự! Expected {expected_order}, nhưng ra {result_order}"
 
 
-def test_all_process_completed():
+# =========================
+# ✅ TEST 2: Công thức thời gian
+# =========================
+def test_time_calculation():
     processes = load_test_data()
+    _, result = priority_non_preemptive(processes)
 
-    _, result_processes = priority_non_preemptive(processes)
-
-    #TEST 2: tất cả process phải được xử lý
-    for p in result_processes:
-        assert p.completion_time > 0, f"{p.pid} chưa được xử lý"
+    for p in result:
+        assert p.turnaround_time == p.completion_time - p.arrival_time
+        assert p.waiting_time == p.turnaround_time - p.burst_time
 
 
-def test_waiting_time_non_negative():
+# =========================
+# ✅ TEST 3: Không chạy trước khi đến
+# =========================
+def test_start_time_valid():
     processes = load_test_data()
+    _, result = priority_non_preemptive(processes)
 
-    _, result_processes = priority_non_preemptive(processes)
-
-    #TEST 3: waiting time không âm
-    for p in result_processes:
-        assert p.waiting_time >= 0, f"{p.pid} có waiting_time âm"
+    for p in result:
+        assert p.start_time >= p.arrival_time, \
+            f"{p.pid} chạy trước khi tới"
 
 
-def test_turnaround_time_correct():
+# =========================
+# ✅ TEST 4: Tất cả process đều được chạy
+# =========================
+def test_all_completed():
     processes = load_test_data()
+    _, result = priority_non_preemptive(processes)
 
-    _, result_processes = priority_non_preemptive(processes)
+    for p in result:
+        assert p.completion_time > 0, \
+            f"{p.pid} chưa được xử lý"
 
-    #TEST 4: turnaround = completion - arrival
-    for p in result_processes:
-        assert p.turnaround_time == p.completion_time - p.arrival_time, \
-            f"{p.pid} tính turnaround sai"
+
+# =========================
+# ✅ TEST 5: Input lỗi (burst_time <= 0)
+# =========================
+def test_invalid_burst_time():
+    processes = [Process("P1", 0, 0, 2)]
+
+    with pytest.raises(ValueError):
+        priority_non_preemptive(processes)
