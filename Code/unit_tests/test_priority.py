@@ -109,3 +109,8 @@ def test_waiting_time_calculation():
 
     # P1 chạy trước → P2 phải đợi
     assert result[1].waiting_time == 3
+
+    if __name__ == "__main__":
+    import pytest
+    import sys
+    sys.exit(pytest.main([__file__]))
