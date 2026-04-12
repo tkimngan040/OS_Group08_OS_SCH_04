@@ -1,78 +1,83 @@
-import copy
-
-from models.process import Process
+import pytest
 from algorithms.priority import priority_non_preemptive
 
 
-# ================= DATA TEST =================
-def create_test_data():
+class Process:
+    def __init__(self, pid, arrival_time, burst_time, priority):
+        self.pid = pid
+        self.arrival_time = arrival_time
+        self.burst_time = burst_time
+        self.priority = priority
+
+        # các giá trị sẽ được tính
+        self.start_time = 0
+        self.completion_time = 0
+        self.turnaround_time = 0
+        self.waiting_time = 0
+
+
+def load_test_data():
     return [
-        Process("P1", 0, 5, 2),
-        Process("P2", 1, 3, 1),
-        Process("P3", 2, 8, 4),
-        Process("P4", 3, 6, 2),
+        Process("P1",0,5,2), Process("P2",0,5,2),
+        Process("P3",1,4,2), Process("P4",1,4,2),
+        Process("P5",2,6,2), Process("P6",2,6,2),
+        Process("P7",3,3,2), Process("P8",3,3,2),
+        Process("P9",4,5,2), Process("P10",4,5,2),
+        Process("P11",5,2,2), Process("P12",5,2,2),
+        Process("P13",6,4,2), Process("P14",6,4,2),
+        Process("P15",7,1,2), Process("P16",7,1,2),
+        Process("P17",8,3,2),
     ]
 
 
-# ================= GANTT =================
-def show_gantt(processes, order):
-    chart = ""
-    timeline = ""
+def test_tie_break_priority():
+    processes = load_test_data()
 
-    process_map = {p.pid: p for p in processes}
+    result_order, result_processes = priority_non_preemptive(processes)
 
-    for pid in order:
-        p = process_map[pid]
-        chart += f"| {p.pid} "
-        timeline += f"{p.start_time}    "
+    expected_order = [
+        "P1","P2",
+        "P3","P4",
+        "P5","P6",
+        "P7","P8",
+        "P9","P10",
+        "P11","P12",
+        "P13","P14",
+        "P15","P16",
+        "P17"
+    ]
 
-    chart += "|"
-    last = process_map[order[-1]]
-    timeline += str(last.completion_time)
-
-    print("\nGantt Chart:")
-    print(chart)
-    print(timeline)
-
-
-# ================= PRINT TABLE =================
-def print_table(processes):
-    print("\nChi tiết tiến trình:")
-
-    print(f"{'PID':<5}{'AT':<5}{'BT':<5}{'PR':<5}{'ST':<5}{'CT':<5}{'WT':<5}{'TAT':<5}")
-
-    
-    processes = sorted(processes, key=lambda p: p.start_time)
-
-    for p in processes:
-        print(f"{p.pid:<5}{p.arrival_time:<5}{p.burst_time:<5}{p.priority:<5}"
-              f"{p.start_time:<5}{p.completion_time:<5}{p.waiting_time:<5}{p.turnaround_time:<5}")
+    #TEST 1: đúng thứ tự execution
+    assert result_order == expected_order, \
+        f"Sai thứ tự! Expected {expected_order} nhưng ra {result_order}"
 
 
-# ================= AVERAGE =================
-def show_average(processes):
-    avg_wt = sum(p.waiting_time for p in processes) / len(processes)
-    avg_tat = sum(p.turnaround_time for p in processes) / len(processes)
+def test_all_process_completed():
+    processes = load_test_data()
 
-    print(f"\nAverage Waiting Time: {avg_wt:.2f}")
-    print(f"Average Turnaround Time: {avg_tat:.2f}")
+    _, result_processes = priority_non_preemptive(processes)
 
-
-# ================= MAIN TEST =================
-def main():
-    processes = create_test_data()
+    #TEST 2: tất cả process phải được xử lý
+    for p in result_processes:
+        assert p.completion_time > 0, f"{p.pid} chưa được xử lý"
 
 
-    processes_copy = copy.deepcopy(processes)
+def test_waiting_time_non_negative():
+    processes = load_test_data()
 
-    order, result = priority_non_preemptive(processes_copy)
+    _, result_processes = priority_non_preemptive(processes)
 
-    print("Execution Order:", " -> ".join(order))
-
-    print_table(result)
-    show_gantt(result, order)
-    show_average(result)
+    #TEST 3: waiting time không âm
+    for p in result_processes:
+        assert p.waiting_time >= 0, f"{p.pid} có waiting_time âm"
 
 
-if __name__ == "__main__":
-    main()
+def test_turnaround_time_correct():
+    processes = load_test_data()
+
+    _, result_processes = priority_non_preemptive(processes)
+
+    #TEST 4: turnaround = completion - arrival
+    for p in result_processes:
+        assert p.turnaround_time == p.completion_time - p.arrival_time, \
+            f"{p.pid} tính turnaround sai"
