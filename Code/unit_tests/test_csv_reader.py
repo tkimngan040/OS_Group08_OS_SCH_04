@@ -1,23 +1,76 @@
+import pytest
+import pandas as pd
 from utils.csv_reader import read_csv
 
-def main():
-    files = ["../input/data1.csv", "../input/data2.csv", "../input/data3.csv"]
 
-    for file in files:
-        print(f"\n=== Đang đọc {file} ===")
+# ✅ Case 1: đọc file hợp lệ
+def test_read_csv_valid(tmp_path):
+    file = tmp_path / "data.csv"
 
-        try:
-            processes = read_csv(file)
-        except Exception as e:
-            print(f"Lỗi: {e}")
-            continue
+    df = pd.DataFrame({
+        "pid": ["P1", "P2"],
+        "arrival_time": [0, 1],
+        "burst_time": [5, 3],
+        "priority": [1, 2]
+    })
+    df.to_csv(file, index=False)
 
-        if not processes:
-            print("Không có dữ liệu")
-            continue
+    processes = read_csv(file)
 
-        for p in processes:
-            print(p.pid, p.arrival_time, p.burst_time, p.priority)
+    assert len(processes) == 2
+    assert processes[0].pid == "P1"
+    assert processes[0].arrival_time == 0
+    assert processes[0].burst_time == 5
+    assert processes[0].priority == 1
 
-if __name__ == "__main__":
-    main()
+
+# ❌ Case 2: file không tồn tại
+def test_read_csv_file_not_found():
+    with pytest.raises(FileNotFoundError):
+        read_csv("khong_ton_tai.csv")
+
+
+# ❌ Case 3: thiếu cột
+def test_read_csv_missing_column(tmp_path):
+    file = tmp_path / "data.csv"
+
+    df = pd.DataFrame({
+        "pid": ["P1"],
+        "arrival_time": [0]
+        # thiếu burst_time
+    })
+    df.to_csv(file, index=False)
+
+    with pytest.raises(ValueError):
+        read_csv(file)
+
+
+# ❌ Case 4: dữ liệu bị thiếu (NaN)
+def test_read_csv_missing_value(tmp_path):
+    file = tmp_path / "data.csv"
+
+    df = pd.DataFrame({
+        "pid": ["P1"],
+        "arrival_time": [None],
+        "burst_time": [5]
+    })
+    df.to_csv(file, index=False)
+
+    with pytest.raises(ValueError):
+        read_csv(file)
+
+
+# ✅ Case 5: không có priority → default = 0
+def test_read_csv_no_priority(tmp_path):
+    file = tmp_path / "data.csv"
+
+    df = pd.DataFrame({
+        "pid": ["P1"],
+        "arrival_time": [0],
+        "burst_time": [5]
+    })
+    df.to_csv(file, index=False)
+
+    processes = read_csv(file)
+
+    assert processes[0].priority == 0
