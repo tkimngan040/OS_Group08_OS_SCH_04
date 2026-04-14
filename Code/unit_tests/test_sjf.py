@@ -12,11 +12,6 @@ class Process:
     burst_time: int
     priority: int = 0
 
-    start_time: int = 0
-    completion_time: int = 0
-    turnaround_time: int = 0
-    waiting_time: int = 0
-
 
 # ======================
 # Read CSV
@@ -68,7 +63,6 @@ def sjf_non_preemptive(processes):
                         if int(p.pid[1:]) < int(processes[idx].pid[1:]):
                             idx = i
 
-        # FIX idle CPU
         if idx == -1:
             current_time = min(
                 p.arrival_time for i, p in enumerate(processes) if not visited[i]
@@ -77,50 +71,47 @@ def sjf_non_preemptive(processes):
 
         p = processes[idx]
 
-        p.start_time = current_time
         current_time += p.burst_time
-        p.completion_time = current_time
-
-        p.turnaround_time = p.completion_time - p.arrival_time
-        p.waiting_time = p.turnaround_time - p.burst_time
 
         visited[idx] = True
         completed += 1
         order.append(p.pid)
 
-    return order, processes
+    return order
 
 
 # ======================
-# Print result
+# TEST 1: NORMAL
 # ======================
-def print_result(order, processes):
-    print("Order:", " -> ".join(order))
+def test_sjf_normal():
+    processes = read_csv("sjf_test.csv")
+    order = sjf_non_preemptive(processes)
 
-    print("\nPID | AT | BT | ST | CT | TAT | WT")
-    for p in processes:
-        print(f"{p.pid:>3} | {p.arrival_time:>2} | {p.burst_time:>2} | "
-              f"{p.start_time:>2} | {p.completion_time:>2} | "
-              f"{p.turnaround_time:>3} | {p.waiting_time:>2}")
+    expected = ['P1', 'P3', 'P2', 'P5', 'P7', 'P10', 'P12', 'P13',
+                'P8', 'P6', 'P4', 'P11', 'P9']
 
-    avg_wt = sum(p.waiting_time for p in processes) / len(processes)
-    avg_tat = sum(p.turnaround_time for p in processes) / len(processes)
-
-    print("\nAverage WT:", round(avg_wt, 2))
-    print("Average TAT:", round(avg_tat, 2))
+    assert order == expected, f"FAIL: {order} != {expected}"
+    print("test_sjf_normal passed")
 
 
 # ======================
-# MAIN TEST
+# TEST 2: TIE-BREAK
+# ======================
+def test_sjf_tie_break():
+    processes = read_csv("test_tie_break_sjf.csv")
+    order = sjf_non_preemptive(processes)
+
+    expected = [f"P{i}" for i in range(1, 18)]
+
+    assert order == expected, f"FAIL: {order} != {expected}"
+    print("test_sjf_tie_break passed")
+
+
+# ======================
+# MAIN
 # ======================
 if __name__ == "__main__":
+    test_sjf_normal()
+    test_sjf_tie_break()
 
-    print("========== TEST 1: NORMAL ==========")
-    processes1 = read_csv("sjf_test.csv")
-    order1, result1 = sjf_non_preemptive(processes1)
-    print_result(order1, result1)
-
-    print("\n\n========== TEST 2: TIE-BREAK ==========")
-    processes2 = read_csv("test_tie_break_sjf.csv")
-    order2, result2 = sjf_non_preemptive(processes2)
-    print_result(order2, result2)
+    print("All tests passed")
