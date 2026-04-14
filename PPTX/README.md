@@ -1,2 +1,0 @@
-file ppt thuyet trinh
-
