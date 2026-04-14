@@ -299,12 +299,12 @@ class App:
                     (y_top + y_bottom) / 2,
                     text=pid
                 )
-                canvas.create_text(
-                    x,
-                    y_bottom + 15,
-                    text=str(p.start_time),
-                    anchor="n"
-                )
+            canvas.create_text(
+                x,
+                y_bottom + 15,
+                text=str(p.start_time),
+                anchor="n"
+            )
 
             x += width
             current_time = p.completion_time
