@@ -61,7 +61,7 @@ def test_read_csv_no_priority(tmp_path):
     assert processes[0].priority == 0
 
 
-# 👉 RUN BUTTON sẽ chạy pytest
+#RUN BUTTON sẽ chạy pytest
 if __name__ == "__main__":
     import pytest
     pytest.main([__file__, "-v", "-s"])
