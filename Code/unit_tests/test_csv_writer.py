@@ -12,10 +12,8 @@ from utils.csv_writer import write_csv
 class TestCSVWriter(unittest.TestCase):
     def setUp(self):
         """Hàm này chạy TRƯỚC mỗi test case để chuẩn bị môi trường."""
-        # Tạo thư mục output giả lập để test
-        self.output_dir = "output"
-        os.makedirs(self.output_dir, exist_ok=True)
-        self.test_file = os.path.join(self.output_dir, "test_result.csv")
+        # Bỏ tạo thư mục output, chỉ ghi ra file tạm ở thư mục hiện tại
+        self.test_file = "test_result.csv"
 
         # Tạo sẵn dữ liệu 2 tiến trình để test
         self.processes = [
