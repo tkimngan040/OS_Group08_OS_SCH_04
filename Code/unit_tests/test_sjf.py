@@ -84,25 +84,24 @@ def sjf_non_preemptive(processes):
 # TEST 1: NORMAL
 # ======================
 def test_sjf_normal():
-    processes = read_csv("sjf_test.csv")
+    processes = read_csv("../input/test_sjf.csv")
     order = sjf_non_preemptive(processes)
 
-    expected = ['P1', 'P3', 'P2', 'P5', 'P7', 'P10', 'P12', 'P13',
-                'P8', 'P6', 'P4', 'P11', 'P9']
+    expected = ['P1', 'P3', 'P2', 'P12', 'P7', 'P13',
+            'P5', 'P10', 'P8', 'P6', 'P4', 'P11', 'P9']
 
     assert order == expected, f"FAIL: {order} != {expected}"
     print("test_sjf_normal passed")
 
 
 # ======================
-# TEST 2: TIE-BREAK
+# TEST 2: TIE-BREAKte
 # ======================
 def test_sjf_tie_break():
-    processes = read_csv("test_tie_break_sjf.csv")
+    processes = read_csv("../input/test_tie_break(SJF).csv")
     order = sjf_non_preemptive(processes)
 
     expected = [f"P{i}" for i in range(1, 18)]
-
     assert order == expected, f"FAIL: {order} != {expected}"
     print("test_sjf_tie_break passed")
 
