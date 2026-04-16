@@ -10,7 +10,7 @@ def priority_non_preemptive(processes):
 
     result_order = []
 
-    while completed < n: #Thuật toán lặp cho đến khi tất cả tiến trình hoàn thành
+    while completed < n:
         idx = -1
 
         for i in range(n):
@@ -20,14 +20,14 @@ def priority_non_preemptive(processes):
             if p.burst_time <= 0:
                 raise ValueError(f"Burst time không hợp lệ: {p.pid}")
 
-            if not done[i] and p.arrival_time <= current_time: #xét các tiến trình đã đến/chưa thực hiện
+            if not done[i] and p.arrival_time <= current_time:
                 if idx == -1:
                     idx = i
                 else:
                     current = processes[idx]
 
                     # so sánh priority
-                    if p.priority < current.priority: #tiến trình có độ ưu tiên nhỏ hơn thì chọn trước
+                    if p.priority < current.priority:
                         idx = i
 
                     # tie-break khi cùng priority
