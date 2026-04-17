@@ -1,6 +1,8 @@
 import csv
+import os
 from dataclasses import dataclass
 
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 # ======================
 # Process class
@@ -85,7 +87,9 @@ def sjf_non_preemptive(processes):
 # TEST 1: NORMAL
 # ======================
 def test_sjf_normal():
-    processes = read_csv("../input/test_sjf.csv")
+    file_path = os.path.join(BASE_DIR, "input", "test_sjf.csv")
+    processes = read_csv(file_path)
+
     order = sjf_non_preemptive(processes)
 
     expected = ['P1', 'P3', 'P2', 'P12', 'P7', 'P13',
@@ -98,7 +102,9 @@ def test_sjf_normal():
 # TEST 2: TIE-BREAK
 # ======================
 def test_sjf_tie_break():
-    processes = read_csv("../input/test_tie_break(SJF).csv")
+    file_path = os.path.join(BASE_DIR, "input", "test_tie_break(SJF).csv")
+    processes = read_csv(file_path)
+
     order = sjf_non_preemptive(processes)
 
     expected = [f"P{i}" for i in range(1, 18)]
