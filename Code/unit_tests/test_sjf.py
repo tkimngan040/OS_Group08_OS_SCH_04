@@ -57,12 +57,13 @@ def sjf_non_preemptive(processes):
                     idx = i
 
                 elif p.burst_time == min_bt:
-                    if p.arrival_time < processes[idx].arrival_time:
+                    if idx == -1 or p.arrival_time < processes[idx].arrival_time:
                         idx = i
                     elif p.arrival_time == processes[idx].arrival_time:
                         if int(p.pid[1:]) < int(processes[idx].pid[1:]):
                             idx = i
 
+        # FIX idle CPU
         if idx == -1:
             current_time = min(
                 p.arrival_time for i, p in enumerate(processes) if not visited[i]
@@ -88,29 +89,27 @@ def test_sjf_normal():
     order = sjf_non_preemptive(processes)
 
     expected = ['P1', 'P3', 'P2', 'P12', 'P7', 'P13',
-            'P5', 'P10', 'P8', 'P6', 'P4', 'P11', 'P9']
+                'P5', 'P10', 'P8', 'P6', 'P4', 'P11', 'P9']
 
-    assert order == expected, f"FAIL: {order} != {expected}"
-    print("test_sjf_normal passed")
+    assert order == expected
 
 
 # ======================
-# TEST 2: TIE-BREAKte
+# TEST 2: TIE-BREAK
 # ======================
 def test_sjf_tie_break():
     processes = read_csv("../input/test_tie_break(SJF).csv")
     order = sjf_non_preemptive(processes)
 
     expected = [f"P{i}" for i in range(1, 18)]
-    assert order == expected, f"FAIL: {order} != {expected}"
-    print("test_sjf_tie_break passed")
+
+    assert order == expected
 
 
 # ======================
-# MAIN
+# RUN WITH PYTHON
 # ======================
 if __name__ == "__main__":
-    test_sjf_normal()
-    test_sjf_tie_break()
-
-    print("All tests passed")
+    import pytest
+    import sys
+    sys.exit(pytest.main(["-v", __file__]))
